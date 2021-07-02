@@ -82,3 +82,9 @@ curl --header "x-user: user3" http://nginx-service:8000
 # Note that all requests will get the same response
 ```
 
+## Fault Injection through Virtual Service
+
+```sh
+kubectl apply -f fault-injection.yaml
+```
+
