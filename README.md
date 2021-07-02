@@ -46,3 +46,39 @@ export FORTIO_POD=$(kubectl get pods -lapp=fortio -o 'jsonpath={.items[0].metada
 kubectl exec "$FORTIO_POD" -c fortio -- fortio load -c 2 -qps 0 -t 200s -loglevel Warning http://nginx-service:8000
 ```
 
+## Using stick sessions and consistent hash so that users are kept on the same version
+
+```sh
+kubectl apply -f consistent-hash.yaml
+POD=$(kubectl get pods | grep nginx-a | head -n1 | cut -d' ' -f1)
+kubectl exec -it $POD -- bash
+
+# Then, inside the pod
+curl --header "x-user: user1" http://nginx-service:8000
+curl --header "x-user: user1" http://nginx-service:8000
+curl --header "x-user: user1" http://nginx-service:8000
+curl --header "x-user: user1" http://nginx-service:8000
+curl --header "x-user: user1" http://nginx-service:8000
+curl --header "x-user: user1" http://nginx-service:8000
+curl --header "x-user: user1" http://nginx-service:8000
+# Note that all requests will get the same response
+
+curl --header "x-user: user2" http://nginx-service:8000
+curl --header "x-user: user2" http://nginx-service:8000
+curl --header "x-user: user2" http://nginx-service:8000
+curl --header "x-user: user2" http://nginx-service:8000
+curl --header "x-user: user2" http://nginx-service:8000
+curl --header "x-user: user2" http://nginx-service:8000
+curl --header "x-user: user2" http://nginx-service:8000
+# Note that all requests will get the same response
+
+curl --header "x-user: user3" http://nginx-service:8000
+curl --header "x-user: user3" http://nginx-service:8000
+curl --header "x-user: user3" http://nginx-service:8000
+curl --header "x-user: user3" http://nginx-service:8000
+curl --header "x-user: user3" http://nginx-service:8000
+curl --header "x-user: user3" http://nginx-service:8000
+curl --header "x-user: user3" http://nginx-service:8000
+# Note that all requests will get the same response
+```
+
