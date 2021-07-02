@@ -88,3 +88,39 @@ curl --header "x-user: user3" http://nginx-service:8000
 kubectl apply -f fault-injection.yaml
 ```
 
+## Creating an istio ingress gateway (a gateway that contains an istio proxy)
+
+If you're creating a cluster in the cloud, go to "Finally, you can:".
+
+When I created my local cluster, I run:
+
+`k3d cluster create -p "8000:30000@loadbalancer" --agents 2`
+
+So, when I access localhost:8000 I'm redirected to the port 30000 in my cluster,
+this way, I can access the LoadBalancer of `deployment.yaml`.
+
+But now, we wanna access localhost:8000 and get redirected to the istio-ingressgateway. First, open `deployment.yaml` and edit the LoadBalancer nodePort to 30001 to let port 30000 free.
+
+Now, run `kubectl get svc -n istio-system` and discover the NodePort of **istio-ingressgateway**:
+
+```
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)
+istio-ingressgateway   LoadBalancer   10.43.31.68     <pending>     15021:30847/TCP,80:31784(<---- this one)/TCP
+```
+
+Then, edit the **istio-ingressgateway** service NodePort:
+
+```sh
+kubectl edit svc istio-ingressgateway -n istio-system
+# Search for:
+# - name: http2
+#   nodePort: 31784 # Change 31784 to 30000 and save
+#   port: 80
+```
+
+Finally, you can:
+
+```sh
+kubectl apply -f gateway.yaml
+```
+
