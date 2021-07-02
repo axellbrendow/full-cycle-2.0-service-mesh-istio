@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servicex
+spec:
+  selector:
+    matchLabels:
+      app: servicex
+  template:
+    metadata:
+      labels:
+        app: servicex
+        version: "200"
+    spec:
+      containers:
+      - name: servicex
+        image: axell13/go-circuit-breaker:latest
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servicex-error
+spec:
+  selector:
+    matchLabels:
+      app: servicex
+  template:
+    metadata:
+      labels:
+        app: servicex
+        version: "504"
+    spec:
+      containers:
+      - name: servicex
+        image: axell13/go-circuit-breaker:latest
+        env:
+          - name: error
+            value: "yes"
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicex-service
+spec:
+  type: ClusterIP
+  selector:
+    app: servicex
+  ports:
+  - port: 80
+    targetPort: 8000

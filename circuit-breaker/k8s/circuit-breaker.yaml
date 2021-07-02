@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: circuit-breaker-servicex
+spec:
+  host: servicex-service.default.svc.cluster.local
+  trafficPolicy:
+    outlierDetection:
+      # consecutive5xxErrors: 20 # Include error 500 which may not be a reason to open the circuit
+      consecutiveGatewayErrors: 10 # Only 502, 503 and 504
+      interval: 20s # 10 gateway errors in the range of 10 seconds
+      baseEjectionTime: 30s # Don't send traffic to pods for 30s, 60s, 120s, 240s....
+      maxEjectionPercent: 100 # Eject 100% of the pods
