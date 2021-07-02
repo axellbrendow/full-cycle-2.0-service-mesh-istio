@@ -124,3 +124,10 @@ Finally, you can:
 kubectl apply -f gateway.yaml
 ```
 
+## Creating istio gateway based on subdomains
+
+Just remember to add "a.fullcycle.com" and "b.fullcycle.com" to /etc/hosts and then:
+
+```sh
+kubectl apply -f gateway-subdomains.yaml
+```

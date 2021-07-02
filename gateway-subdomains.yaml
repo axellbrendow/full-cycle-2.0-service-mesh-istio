@@ -1,0 +1,48 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: ingress-gateway-istio
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: http2
+      hosts:
+        - "*.fullcycle.com"
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nginx-vs
+spec:
+  hosts:
+    - "a.fullcycle.com"
+  gateways:
+    - "ingress-gateway-istio"
+  http:
+    - route:
+        - destination:
+            host: nginx-service
+            subset: v1
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nginx-vs-b
+spec:
+  hosts:
+    - "b.fullcycle.com"
+  gateways:
+    - "ingress-gateway-istio"
+  http:
+    - route:
+        - destination:
+            host: nginx-service
+            subset: v2
